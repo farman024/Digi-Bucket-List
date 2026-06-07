@@ -301,7 +301,7 @@ function openLightbox(p,e){
   if(!p.photo_url)return;
   document.getElementById("lightboxImg").src=p.photo_url;
   document.getElementById("lightboxName").textContent=p.name;
-  document.getElementById("lightboxCountry").textContent="📍 "+p.country;
+  document.getElementById("lightboxCountry").innerHTML='<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="4" y="0" width="6" height="2" fill="#e94560"/><rect x="2" y="2" width="10" height="2" fill="#e94560"/><rect x="0" y="4" width="14" height="6" fill="#e94560"/><rect x="2" y="10" width="10" height="2" fill="#e94560"/><rect x="4" y="12" width="6" height="2" fill="#e94560"/><rect x="5" y="14" width="4" height="2" fill="#c73652"/><rect x="6" y="16" width="2" height="2" fill="#c73652"/><rect x="4" y="5" width="2" height="2" fill="rgba(255,255,255,0.4)"/></svg>'+p.country;
   document.getElementById("lightbox").classList.add("open");
 }
 function closeLightbox(){document.getElementById("lightbox").classList.remove("open");}
