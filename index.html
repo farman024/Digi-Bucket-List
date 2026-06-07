@@ -323,10 +323,10 @@ function render(){
       <div class="card-no-img" style="${p.photo_url?"display:none":""}">?</div>
       <div class="card-body">
         <div class="card-name">${esc(p.name)}</div>
-        <div class="card-country">&#x1F4CD; ${esc(p.country)}</div>
+        <div class="card-country"><svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="4" y="0" width="6" height="2" fill="#e94560"/><rect x="2" y="2" width="10" height="2" fill="#e94560"/><rect x="0" y="4" width="14" height="6" fill="#e94560"/><rect x="2" y="10" width="10" height="2" fill="#e94560"/><rect x="4" y="12" width="6" height="2" fill="#e94560"/><rect x="5" y="14" width="4" height="2" fill="#c73652"/><rect x="6" y="16" width="2" height="2" fill="#c73652"/><rect x="4" y="5" width="2" height="2" fill="rgba(255,255,255,0.4)"/></svg>${esc(p.country)}</div>
         ${p.notes?`<div class="card-notes">${esc(p.notes)}</div>`:""}
         <div class="card-footer">
-          <span class="badge badge-${p.status}">${p.status==="dreaming"?"DREAMING":"VISITED"}</span>
+          <span class="badge badge-${p.status}">${p.status==="dreaming"?`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="2" y="0" width="8" height="2" fill="#00d4ff"/><rect x="0" y="2" width="2" height="4" fill="#00d4ff"/><rect x="10" y="2" width="2" height="4" fill="#00d4ff"/><rect x="2" y="6" width="2" height="2" fill="#00d4ff"/><rect x="6" y="4" width="2" height="2" fill="#00d4ff"/><rect x="4" y="8" width="4" height="2" fill="#00d4ff"/><rect x="2" y="10" width="8" height="2" fill="#00d4ff"/></svg> DREAMING`:`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="0" y="6" width="2" height="2" fill="#39ff14"/><rect x="2" y="8" width="2" height="2" fill="#39ff14"/><rect x="4" y="10" width="2" height="2" fill="#39ff14"/><rect x="6" y="6" width="2" height="2" fill="#39ff14"/><rect x="8" y="4" width="2" height="2" fill="#39ff14"/><rect x="10" y="2" width="2" height="2" fill="#39ff14"/></svg> VISITED`}</span>
           <div class="card-actions">
             <button class="pixel-btn btn-sm btn-ghost" onclick="toggleStatus('${p.id}','${p.status}',event)">&#x21BA;</button>
             <button class="pixel-btn btn-sm btn-ghost" onclick="event.stopPropagation();openModal(${pd})">&#x270E;</button>
