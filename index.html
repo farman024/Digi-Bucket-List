@@ -7,7 +7,9 @@
 <meta name="description" content="Your personal travel bucket list with pixel vibes">
 <meta name="theme-color" content="#e94560">
 <link rel="manifest" id="manifest-ph">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230a0a0f'/%3E%3Crect x='64' y='16' width='64' height='16' fill='%23e94560'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
 :root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--panel:#16213e;--border:#0f3460;--accent:#e94560;--accent2:#f5a623;--accent3:#00d4ff;--green:#39ff14;--text:#e0e0ff;--text2:#8888bb;--card-bg:#0d0d1a;}
@@ -114,18 +116,7 @@ select option{background:var(--bg2);}
 <div class="wrapper">
   <header>
     <div class="logo-area">
-      <svg class="logo-img" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:52px;height:52px;border:2px solid var(--accent);padding:2px;image-rendering:pixelated">
-      <rect width="52" height="52" fill="#0a0a0f"/>
-      <rect x="18" y="4" width="16" height="4" fill="#e94560"/>
-      <rect x="10" y="8" width="32" height="4" fill="#e94560"/>
-      <rect x="6" y="12" width="40" height="16" fill="#e94560"/>
-      <rect x="10" y="28" width="32" height="4" fill="#e94560"/>
-      <rect x="18" y="32" width="16" height="4" fill="#e94560"/>
-      <rect x="20" y="36" width="12" height="4" fill="#c73652"/>
-      <rect x="22" y="40" width="8" height="4" fill="#c73652"/>
-      <rect x="24" y="44" width="4" height="4" fill="#c73652"/>
-      <rect x="12" y="16" width="6" height="6" fill="rgba(255,255,255,0.3)"/>
-    </svg>
+      <img class="logo-img" src="logo.png" alt="Digi Bucket List Logo" style="width:52px;height:52px;border:2px solid var(--accent);padding:2px;object-fit:cover">
       <div class="logo-text">
         <span class="logo-pixel">DIGI<br>BUCKET<br>LIST</span>
         <span class="logo-sub">&gt; EXPLORE THE WORLD_</span>
@@ -233,10 +224,8 @@ const LS_KEY = "digi_bucket_list";
 const USE_SUPABASE = SUPABASE_URL !== "YOUR_SUPABASE_PROJECT_URL" && SUPABASE_KEY !== "YOUR_SUPABASE_ANON_KEY"
 const USE_CLOUDINARY = CLOUDINARY_CLOUD !== "YOUR_CLOUDINARY_CLOUD_NAME" && CLOUDINARY_PRESET !== "YOUR_CLOUDINARY_UPLOAD_PRESET"
 
-// PWA
-const ICON192 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230a0a0f'/%3E%3Crect x='64' y='16' width='64' height='16' fill='%23e94560'/%3E%3Crect x='32' y='32' width='128' height='16' fill='%23e94560'/%3E%3Crect x='16' y='48' width='160' height='64' fill='%23e94560'/%3E%3Crect x='32' y='112' width='128' height='16' fill='%23e94560'/%3E%3Crect x='64' y='128' width='64' height='16' fill='%23e94560'/%3E%3Crect x='80' y='144' width='32' height='16' fill='%23c73652'/%3E%3Crect x='88' y='160' width='16' height='16' fill='%23c73652'/%3E%3C/svg%3E"
-const ICON512 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230a0a0f'/%3E%3Crect x='160' y='40' width='192' height='40' fill='%23e94560'/%3E%3Crect x='80' y='80' width='352' height='40' fill='%23e94560'/%3E%3Crect x='40' y='120' width='432' height='180' fill='%23e94560'/%3E%3Crect x='80' y='300' width='352' height='40' fill='%23e94560'/%3E%3Crect x='160' y='340' width='192' height='40' fill='%23e94560'/%3E%3Crect x='200' y='380' width='112' height='40' fill='%23c73652'/%3E%3Crect x='236' y='420' width='40' height='40' fill='%23c73652'/%3E%3C/svg%3E"
-const manifest = {name:"Digi Bucket List",short_name:"DigiBucket",description:"Your pixel travel bucket list",start_url:".",display:"standalone",background_color:"#0a0a0f",theme_color:"#e94560",orientation:"portrait",icons:[{src:ICON192,sizes:"192x192",type:"image/png"},{src:ICON512,sizes:"512x512",type:"image/png"}]};
+// PWA — brand logo from Brand Logos/Digi Bucket list - Logo.png
+const manifest = {name:"Digi Bucket List",short_name:"DigiBucket",description:"Your pixel travel bucket list",start_url:".",display:"standalone",background_color:"#0a0a0f",theme_color:"#e94560",orientation:"portrait",icons:[{src:"icon-192.png",sizes:"192x192",type:"image/png"},{src:"icon-512.png",sizes:"512x512",type:"image/png"},{src:"logo.png",sizes:"1024x1024",type:"image/png",purpose:"any maskable"}]};
 const mBlob = new Blob([JSON.stringify(manifest)],{type:"application/json"});
 document.getElementById("manifest-ph").href = URL.createObjectURL(mBlob);
 const swCode = `const CACHE="digi-v1";self.addEventListener("install",e=>{self.skipWaiting();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));if(e.request.method==="GET"){e.waitUntil(caches.open(CACHE).then(c=>c.add(e.request.url)).catch(()=>{}))}});`;
