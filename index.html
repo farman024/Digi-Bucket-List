@@ -166,7 +166,7 @@ select option{background:var(--bg2);}
     <div class="modal-body">
       <div class="field"><label id="nameLabel">PLACE NAME *</label><input type="text" id="fName" placeholder="e.g. Santorini Caldera"></div>
       <div class="field"><label id="detailLabel">COUNTRY *</label><input type="text" id="fCountry" placeholder="e.g. Greece"></div>
-      <div class="field"><label>STATUS</label><select id="fStatus"><option value="dreaming">DREAMING</option><option value="done" id="doneOption">VISITED</option></select></div>
+      <div class="field"><label>STATUS</label><select id="fStatus"><option value="dreaming">DREAMING</option><option value="visited" id="doneOption">VISITED</option></select></div>
       <div class="field"><label>NOTES</label><textarea id="fNotes" placeholder="Why do you want to visit?"></textarea></div>
       <div class="field">
         <label>PHOTO</label>
@@ -353,7 +353,7 @@ async function deletePlace(id,e){
 
 async function toggleStatus(id,cur,e){
   e.stopPropagation();
-  const doneVal=activeType==="thing"?"acquired":"visited";const s=cur==="dreaming"?doneVal:"dreaming";
+  const doneVal=activeType==="thing"?"acquired":"visited";const curNorm=cur==="done"?doneVal:cur;const s=curNorm==="dreaming"?doneVal:"dreaming";
   try{
     if(USE_SUPABASE){await sbFetch(TABLE+"?id=eq."+id,{method:"PATCH",body:JSON.stringify({status:s})});}
     else{const all=lsLoad();const idx=all.findIndex(p=>p.id===id);if(idx>-1)all[idx].status=s;lsSave(all);}
@@ -383,7 +383,8 @@ function openModal(place=null){
   document.getElementById("modalTitle").textContent=place?(activeType==="place"?"EDIT PLACE":"EDIT THING"):(activeType==="place"?"ADD NEW PLACE":"ADD NEW THING");
   document.getElementById("fName").value=place?.name||"";
   document.getElementById("fCountry").value=place?.country||"";
-  document.getElementById("fStatus").value=place?.status||"dreaming";
+  let _s=place?.status||"dreaming"; if(_s==="done") _s=activeType==="thing"?"acquired":"visited";
+  document.getElementById("fStatus").value=_s;
   document.getElementById("fNotes").value=place?.notes||"";
   document.getElementById("fPhotoUrl").value="";
   uploadedPhotoUrl=place?.photo_url||"";pendingFile=null;
@@ -455,7 +456,10 @@ function esc(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/<
 
 function render(){
   const grid=document.getElementById("grid");
-  const filterVal=filter==="done"?(activeType==="thing"?"acquired":"visited"):filter;const filtered=filter==="all"?places:places.filter(p=>p.status===filterVal);
+  const doneVal=activeType==="thing"?"acquired":"visited";
+  const filterVal=filter==="done"?doneVal:filter;
+  const norm=s=>s==="done"?doneVal:s;
+  const filtered=filter==="all"?places:places.filter(p=>norm(p.status)===filterVal);
   document.getElementById("totalCount").textContent=places.length;
   if(filtered.length===0){
     grid.innerHTML=`<div class="empty"><span class="empty-pixel">?</span><div class="empty-text">NO ${activeType==="place"?"PLACES":"THINGS"} FOUND<br><br>ADD YOUR DREAM ${activeType==="place"?"DESTINATIONS":"ITEMS"}</div></div>`;return;
@@ -471,7 +475,7 @@ function render(){
         <div class="card-country">${(p.type||"place")==="place"?`<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="4" y="0" width="6" height="2" fill="#e94560"/><rect x="2" y="2" width="10" height="2" fill="#e94560"/><rect x="0" y="4" width="14" height="6" fill="#e94560"/><rect x="2" y="10" width="10" height="2" fill="#e94560"/><rect x="4" y="12" width="6" height="2" fill="#e94560"/><rect x="5" y="14" width="4" height="2" fill="#c73652"/><rect x="6" y="16" width="2" height="2" fill="#c73652"/><rect x="4" y="5" width="2" height="2" fill="rgba(255,255,255,0.4)"/></svg>`:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="0" y="4" width="16" height="2" fill="#f5a623"/><rect x="0" y="8" width="12" height="2" fill="#f5a623"/><rect x="0" y="12" width="14" height="2" fill="#f5a623"/><rect x="2" y="0" width="2" height="4" fill="#f5a623"/></svg>`}${esc(p.country)}</div>
         ${p.notes?`<div class="card-notes">${esc(p.notes)}</div>`:""}
         <div class="card-footer">
-          <span class="badge badge-${p.status}">${p.status==="dreaming"?`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="2" y="0" width="8" height="2" fill="#00d4ff"/><rect x="0" y="2" width="2" height="4" fill="#00d4ff"/><rect x="10" y="2" width="2" height="4" fill="#00d4ff"/><rect x="2" y="6" width="2" height="2" fill="#00d4ff"/><rect x="6" y="4" width="2" height="2" fill="#00d4ff"/><rect x="4" y="8" width="4" height="2" fill="#00d4ff"/><rect x="2" y="10" width="8" height="2" fill="#00d4ff"/></svg> DREAMING`:`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="0" y="6" width="2" height="2" fill="#39ff14"/><rect x="2" y="8" width="2" height="2" fill="#39ff14"/><rect x="4" y="10" width="2" height="2" fill="#39ff14"/><rect x="6" y="6" width="2" height="2" fill="#39ff14"/><rect x="8" y="4" width="2" height="2" fill="#39ff14"/><rect x="10" y="2" width="2" height="2" fill="#39ff14"/></svg> ${p.status==="acquired"?"ACQUIRED":"VISITED"}`}</span>
+          <span class="badge badge-${norm(p.status)}">${norm(p.status)==="dreaming"?`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="2" y="0" width="8" height="2" fill="#00d4ff"/><rect x="0" y="2" width="2" height="4" fill="#00d4ff"/><rect x="10" y="2" width="2" height="4" fill="#00d4ff"/><rect x="2" y="6" width="2" height="2" fill="#00d4ff"/><rect x="6" y="4" width="2" height="2" fill="#00d4ff"/><rect x="4" y="8" width="4" height="2" fill="#00d4ff"/><rect x="2" y="10" width="8" height="2" fill="#00d4ff"/></svg> DREAMING`:`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated"><rect x="0" y="6" width="2" height="2" fill="#39ff14"/><rect x="2" y="8" width="2" height="2" fill="#39ff14"/><rect x="4" y="10" width="2" height="2" fill="#39ff14"/><rect x="6" y="6" width="2" height="2" fill="#39ff14"/><rect x="8" y="4" width="2" height="2" fill="#39ff14"/><rect x="10" y="2" width="2" height="2" fill="#39ff14"/></svg> ${norm(p.status)==="acquired"?"ACQUIRED":"VISITED"}`}</span>
           <div class="card-actions">
             <button class="pixel-btn btn-sm btn-ghost" onclick="toggleStatus('${p.id}','${p.status}',event)">&#x21BA;</button>
             <button class="pixel-btn btn-sm btn-ghost" onclick="event.stopPropagation();openModal(${pd})">&#x270E;</button>
