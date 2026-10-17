@@ -140,15 +140,31 @@ select option{background:var(--bg2);}
 .account-copy h2{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent3);line-height:1.8;}
 .account-copy p{font-size:19px;line-height:1.35;color:var(--text2);}
 .account-actions{padding:14px 20px 22px;display:flex;gap:10px;flex-wrap:wrap;}
+.settings-btn{width:44px;height:44px;padding:0;justify-content:center;flex-shrink:0;}
+.settings-btn svg{width:22px;height:22px;}
+.settings-modal{max-width:440px;}
+.settings-modal .modal-close{width:44px;height:44px;flex-shrink:0;}
+.settings-modal .modal-close svg{width:22px;height:22px;display:block;}
+.settings-body{padding:8px 20px 20px;}
+.settings-section{padding:20px 0;}
+.settings-section+.settings-section{border-top:2px solid var(--border);}
+.settings-label{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:1px;color:var(--accent3);margin-bottom:14px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.settings-copy{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.settings-copy strong{font-weight:normal;font-size:23px;}
+.settings-copy small{font-size:17px;line-height:1.3;color:var(--text2);}
+.settings-account{width:100%;font-family:'VT323',monospace;text-align:left;background:var(--bg);color:var(--text);border:2px solid var(--border);padding:14px;cursor:pointer;}
+.settings-account:hover{border-color:var(--accent3);}
+.settings-arrow{color:var(--accent3);font-size:28px;}
+button:focus-visible{outline:3px solid var(--accent2);outline-offset:5px;}
 @media(max-width:600px){
   header{flex-direction:column;align-items:stretch;gap:16px;padding:16px;}
   .logo-area{min-width:0;}
   .logo-img{flex-shrink:0;}
   .logo-text{min-width:0;}
   .logo-sub{font-size:14px;letter-spacing:1px;}
-  .header-right{width:100%;padding-top:12px;border-top:2px solid var(--border);}
-  #accountBtn{margin-right:auto;min-height:44px;justify-content:center;}
-  .counter-box{margin-left:auto;flex-shrink:0;}
+  .header-right{width:100%;padding-top:12px;border-top:2px solid var(--border);justify-content:space-between;}
+  .counter-box{text-align:left;flex-shrink:0;}
   .toggle-btn{flex-shrink:0;}
 }
 @media(max-width:500px){.logo-pixel{font-size:8px;}.grid{grid-template-columns:1fr;}.controls{gap:6px;}.entry-gate{padding:16px}.entry-card{padding:26px 20px}.entry-brand{margin-bottom:24px}.entry-choice-copy strong{font-size:7px}.header-right{gap:7px}.counter-num{font-size:16px}.counter-label{font-size:12px}}
@@ -183,14 +199,12 @@ select option{background:var(--bg2);}
       </div>
     </div>
     <div class="header-right">
-      <button class="pixel-btn btn-ghost btn-sm" id="accountBtn" onclick="openAccountLayer()" aria-haspopup="dialog" hidden>ACCOUNT</button>
       <div class="counter-box">
         <span class="counter-num" id="totalCount">0</span>
         <span class="counter-label" id="counterLabel">PLACES</span>
       </div>
-      <button class="toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-        <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg id="moonIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <button class="pixel-btn btn-ghost btn-sm settings-btn" id="settingsBtn" onclick="openSettings()" aria-label="Settings" aria-haspopup="dialog" aria-controls="settingsOverlay" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9.7 2-.5 2.5-1.6.9-2.4-.8L2.5 9l1.9 1.7v1.8L2.5 14l2.7 4.6 2.4-.8 1.6.9.5 2.5h4.6l.5-2.5 1.6-.9 2.4.8 2.7-4.6-1.9-1.5v-1.8L21.5 9l-2.7-4.4-2.4.8-1.6-.9-.5-2.5Z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
     </div>
   </header>
@@ -245,6 +259,31 @@ select option{background:var(--bg2);}
     <div class="modal-footer">
       <button class="pixel-btn btn-ghost" onclick="closeModal()">CANCEL</button>
       <button class="pixel-btn btn-primary" id="saveBtn" onclick="savePlace()">SAVE PLACE</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsHeading">
+  <div class="modal settings-modal">
+    <div class="modal-header"><h2 class="modal-title" id="settingsHeading">SETTINGS</h2><button class="modal-close" onclick="closeSettings()" aria-label="Close settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg></button></div>
+    <div class="settings-body">
+      <section class="settings-section" aria-labelledby="appearanceHeading">
+        <h3 class="settings-label" id="appearanceHeading">APPEARANCE</h3>
+        <div class="settings-row">
+          <div class="settings-copy"><strong>Theme</strong><small id="themeDescription">Dark mode is on</small></div>
+          <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Dark mode" aria-pressed="true" aria-describedby="themeDescription">
+            <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>
+            <svg id="moonIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </section>
+      <section class="settings-section" id="accountSection" aria-labelledby="accountSettingsHeading" hidden>
+        <h3 class="settings-label" id="accountSettingsHeading">ACCOUNT &amp; STORAGE</h3>
+        <button class="settings-row settings-account" id="accountBtn" onclick="openAccountFromSettings()" aria-haspopup="dialog" hidden>
+          <span class="settings-copy"><strong>Account</strong><small>Sign-in, sync &amp; storage mode</small></span><span class="settings-arrow" aria-hidden="true">&#8250;</span>
+        </button>
+      </section>
     </div>
   </div>
 </div>
@@ -338,6 +377,8 @@ function applyTheme(dark){
   document.body.classList.toggle("light",!isDark);
   document.getElementById("sunIcon").style.display=isDark?"block":"none";
   document.getElementById("moonIcon").style.display=isDark?"none":"block";
+  document.getElementById("themeToggle").setAttribute("aria-pressed",String(isDark));
+  document.getElementById("themeDescription").textContent=isDark?"Dark mode is on":"Light mode is on";
   try{localStorage.setItem("digi_theme", isDark?"dark":"light");}catch(e){}
 }
 function toggleTheme(){applyTheme(!isDark);}
@@ -691,6 +732,8 @@ function updateAuthUI(){
   appShell.hidden=!canOpenApp;
   document.getElementById("appContent").hidden=!canOpenApp;
   accountBtn.hidden=!CLOUD_CONFIGURED||!canOpenApp;
+  document.getElementById("accountSection").hidden=accountBtn.hidden;
+  if(!canOpenApp)closeSettings(false);
   document.getElementById("entrySignInBtn").hidden=!CLOUD_CONFIGURED||signedIn;
   document.getElementById("entrySignInBtn").disabled=!authReady||!authClient;
   document.getElementById("entryLocalBtn").hidden=!CLOUD_CONFIGURED||!cloudMode;
@@ -712,8 +755,35 @@ function updateAuthUI(){
   document.getElementById("localModeBtn").hidden=!cloudMode;
   document.getElementById("cloudModeBtn").hidden=cloudMode;
   document.getElementById("signOutBtn").hidden=!cloudMode||!signedIn;
+  if(!canOpenApp&&document.activeElement?.closest("#appShell, #settingsOverlay")){
+    const entryAction=[...entryGate.querySelectorAll("button")].find(button=>!button.hidden&&!button.disabled);
+    entryAction?.focus();
+  }
 }
 
+let settingsReturnFocus=null,settingsReleaseTrap=null,accountFromSettings=false;
+function openSettings(){
+  const overlay=document.getElementById("settingsOverlay");
+  settingsReturnFocus=document.activeElement;
+  overlay.classList.add("open");
+  document.getElementById("settingsBtn").setAttribute("aria-expanded","true");
+  if(settingsReleaseTrap)settingsReleaseTrap();
+  settingsReleaseTrap=trapFocus(overlay.querySelector(".modal"));
+  overlay.querySelector(".modal-close").focus();
+}
+function closeSettings(restoreFocus=true){
+  const overlay=document.getElementById("settingsOverlay");
+  if(!overlay.classList.contains("open"))return;
+  overlay.classList.remove("open");
+  document.getElementById("settingsBtn").setAttribute("aria-expanded","false");
+  if(settingsReleaseTrap){settingsReleaseTrap();settingsReleaseTrap=null;}
+  if(restoreFocus&&settingsReturnFocus?.offsetParent!==null)settingsReturnFocus?.focus();
+}
+function openAccountFromSettings(){
+  closeSettings(false);
+  accountFromSettings=true;
+  openAccountLayer();
+}
 let accountReturnFocus=null,accountReleaseTrap=null;
 function openAccountLayer(){
   if(!CLOUD_CONFIGURED)return;
@@ -729,6 +799,20 @@ function closeAccountLayer(restoreFocus=true){
   if(!overlay.classList.contains("open"))return;
   overlay.classList.remove("open");
   if(accountReleaseTrap){accountReleaseTrap();accountReleaseTrap=null;}
+  if(accountFromSettings){
+    accountFromSettings=false;
+    if(restoreFocus&&!document.getElementById("appShell").hidden){
+      openSettings();
+      settingsReturnFocus=document.getElementById("settingsBtn");
+      document.getElementById("accountBtn").focus();
+      return;
+    }
+    accountReturnFocus=document.getElementById("settingsBtn");
+  }
+  if(restoreFocus&&document.getElementById("appShell").hidden){
+    document.querySelector("#entryGate button:not([hidden]):not(:disabled)")?.focus();
+    return;
+  }
   if(restoreFocus&&accountReturnFocus&&accountReturnFocus.offsetParent!==null)accountReturnFocus.focus();
 }
 
@@ -770,9 +854,14 @@ function initAuth(){
 
 
 document.getElementById("overlay").addEventListener("click",e=>{if(e.target===document.getElementById("overlay"))closeModal();});
+document.getElementById("settingsOverlay").addEventListener("click",e=>{if(e.target===document.getElementById("settingsOverlay"))closeSettings();});
 document.getElementById("accountOverlay").addEventListener("click",e=>{if(e.target===document.getElementById("accountOverlay"))closeAccountLayer();});
 document.getElementById("lightbox").addEventListener("click",e=>{if(e.target===document.getElementById("lightbox"))closeLightbox();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeAccountLayer();closeLightbox();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){
+  if(document.getElementById("accountOverlay").classList.contains("open")){closeAccountLayer();return;}
+  if(document.getElementById("settingsOverlay").classList.contains("open")){closeSettings();return;}
+  closeModal();closeLightbox();
+}});
 
 // Show storage mode indicator
 window.addEventListener('DOMContentLoaded',()=>{
