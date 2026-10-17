@@ -118,12 +118,51 @@ select option{background:var(--bg2);}
 .lightbox-country{font-family:'VT323',monospace;font-size:22px;color:var(--accent2);text-align:center;}
 .lightbox-close{position:absolute;top:20px;right:20px;background:none;border:2px solid var(--accent);color:var(--accent);width:40px;height:40px;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 var(--accent);}
 ::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}::-webkit-scrollbar-thumb:hover{background:var(--accent);}
-.auth-panel{margin:0 0 20px;padding:16px 20px;background:var(--panel);border:2px solid var(--accent3);box-shadow:4px 4px 0 var(--accent3);display:flex;align-items:center;gap:12px;flex-wrap:wrap}.auth-panel h2{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent3)}.auth-panel p{font-size:17px;color:var(--text2);line-height:1.3}.auth-copy{flex:1;min-width:220px}.auth-panel[hidden],#appContent[hidden],[hidden]{display:none!important;}
-@media(max-width:500px){.logo-pixel{font-size:8px;}.grid{grid-template-columns:1fr;}.controls{gap:6px;}}
+#appShell[hidden],[hidden]{display:none!important;}
+.entry-gate{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:24px;background:radial-gradient(ellipse at 50% 0%,rgba(15,52,96,.4),transparent 58%),var(--bg);}
+.entry-card{position:relative;width:min(100%,560px);padding:clamp(24px,6vw,48px);background:var(--bg2);border:3px solid var(--accent);box-shadow:8px 8px 0 var(--accent);}
+.entry-card::before,.entry-card::after{content:'';position:absolute;width:12px;height:12px;background:var(--accent3);}
+.entry-card::before{top:-3px;left:-3px}.entry-card::after{right:-3px;bottom:-3px;background:var(--accent2)}
+.entry-brand{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+.entry-brand img{width:58px;height:58px;object-fit:cover;border:2px solid var(--accent);padding:2px;}
+.entry-brand span{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);line-height:1.8;letter-spacing:1px;}
+.entry-kicker{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--accent3);letter-spacing:2px;margin-bottom:14px;}
+.entry-title{font-family:'Press Start 2P',monospace;font-size:clamp(15px,4vw,22px);line-height:1.8;color:var(--text);margin-bottom:12px;}
+.entry-description{font-size:22px;line-height:1.25;color:var(--text2);margin-bottom:24px;}
+.entry-options{display:grid;gap:12px;}
+.entry-choice{width:100%;min-height:72px;justify-content:flex-start;text-align:left;padding:14px 16px;}
+.entry-choice-copy{display:flex;flex-direction:column;gap:6px;}
+.entry-choice-copy strong{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.5px;}
+.entry-choice-copy small{font-family:'VT323',monospace;font-size:18px;letter-spacing:0;color:inherit;opacity:.8;}
+.entry-status{margin-top:22px;color:var(--accent2);font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.8;}
+.entry-message{margin-top:6px;color:var(--text2);font-size:17px;line-height:1.35;}
+.account-copy{padding:20px 22px 4px;display:flex;flex-direction:column;gap:10px;}
+.account-copy h2{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent3);line-height:1.8;}
+.account-copy p{font-size:19px;line-height:1.35;color:var(--text2);}
+.account-actions{padding:14px 20px 22px;display:flex;gap:10px;flex-wrap:wrap;}
+@media(max-width:500px){.logo-pixel{font-size:8px;}.grid{grid-template-columns:1fr;}.controls{gap:6px;}.entry-gate{padding:16px}.entry-card{padding:26px 20px}.entry-brand{margin-bottom:24px}.entry-choice-copy strong{font-size:7px}.header-right{gap:7px}.counter-num{font-size:16px}.counter-label{font-size:12px}}
 </style>
 </head>
 <body>
-<div class="wrapper">
+<main id="entryGate" class="entry-gate" aria-labelledby="entryTitle">
+  <section class="entry-card">
+    <div class="entry-brand"><img src="icon-192.png" alt="" width="58" height="58"><span>DIGI<br>BUCKET LIST</span></div>
+    <p class="entry-kicker">YOUR NEXT ADVENTURE STARTS HERE</p>
+    <h1 class="entry-title" id="entryTitle">CHOOSE YOUR LIST MODE</h1>
+    <p class="entry-description">Pick how you want to keep your places and things before opening your list.</p>
+    <div class="entry-options">
+      <button class="pixel-btn btn-primary entry-choice" id="entrySignInBtn" onclick="signInWithProvider()" hidden>
+        <span aria-hidden="true">G</span><span class="entry-choice-copy"><strong>CONTINUE WITH GOOGLE</strong><small>Private cloud list, synced with your account</small></span>
+      </button>
+      <button class="pixel-btn btn-ghost entry-choice" id="entryLocalBtn" onclick="setStorageMode('local')" hidden>
+        <span aria-hidden="true">&gt;_</span><span class="entry-choice-copy"><strong>USE LOCAL-ONLY MODE</strong><small>Stays in this browser; no sign-in or sync</small></span>
+      </button>
+    </div>
+    <p class="entry-status" id="entryStatus" aria-live="polite">CHECKING SIGN-IN...</p>
+    <p class="entry-message" id="entryMessage">Your cloud and local lists stay separate.</p>
+  </section>
+</main>
+<div class="wrapper" id="appShell" hidden>
   <header>
     <div class="logo-area">
       <img class="logo-img" src="icon-192.png" alt="Digi Bucket List Logo" width="52" height="52" loading="eager" decoding="async" style="width:52px;height:52px;border:2px solid var(--accent);padding:2px;object-fit:cover">
@@ -133,6 +172,7 @@ select option{background:var(--bg2);}
       </div>
     </div>
     <div class="header-right">
+      <button class="pixel-btn btn-ghost btn-sm" id="accountBtn" onclick="openAccountLayer()" aria-haspopup="dialog" hidden>ACCOUNT</button>
       <div class="counter-box">
         <span class="counter-num" id="totalCount">0</span>
         <span class="counter-label" id="counterLabel">PLACES</span>
@@ -143,13 +183,6 @@ select option{background:var(--bg2);}
       </button>
     </div>
   </header>
-  <section id="authPanel" class="auth-panel" hidden aria-live="polite">
-    <div class="auth-copy"><h2 id="authHeading">ACCOUNT</h2><p id="authStatus">Checking sign-in...</p><p id="authMessage"></p></div>
-    <button class="pixel-btn btn-primary" id="signInBtn" onclick="signInWithProvider()" hidden>SIGN IN WITH GOOGLE</button>
-    <button class="pixel-btn btn-ghost" id="localModeBtn" onclick="setStorageMode('local')" hidden>USE LOCAL MODE</button>
-    <button class="pixel-btn btn-ghost" id="cloudModeBtn" onclick="setStorageMode('cloud')" hidden>USE CLOUD MODE</button>
-    <button class="pixel-btn btn-ghost" id="signOutBtn" onclick="signOut()" hidden>SIGN OUT</button>
-  </section>
   <div id="appContent" hidden>
   <div class="type-tabs" style="margin-bottom:12px;">
     <button class="type-tab active" onclick="setType('place',this)"><svg width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="2" y="0" width="6" height="2" fill="currentColor"/><rect x="0" y="2" width="10" height="6" fill="currentColor"/><rect x="2" y="8" width="6" height="2" fill="currentColor"/><rect x="3" y="10" width="4" height="2" fill="currentColor"/><rect x="4" y="12" width="2" height="1" fill="currentColor"/></svg>PLACES</button>
@@ -201,6 +234,20 @@ select option{background:var(--bg2);}
     <div class="modal-footer">
       <button class="pixel-btn btn-ghost" onclick="closeModal()">CANCEL</button>
       <button class="pixel-btn btn-primary" id="saveBtn" onclick="savePlace()">SAVE PLACE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT LAYER -->
+<div class="overlay" id="accountOverlay" role="dialog" aria-modal="true" aria-labelledby="authHeading">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title" id="authHeading">ACCOUNT</span><button class="modal-close" onclick="closeAccountLayer()" aria-label="Close account settings">&#x2715;</button></div>
+    <div class="account-copy"><p id="authStatus" aria-live="polite">Checking sign-in...</p><p id="authMessage"></p></div>
+    <div class="account-actions">
+      <button class="pixel-btn btn-primary" id="signInBtn" onclick="signInWithProvider()" hidden>SIGN IN WITH GOOGLE</button>
+      <button class="pixel-btn btn-ghost" id="localModeBtn" onclick="setStorageMode('local')" hidden>USE LOCAL MODE</button>
+      <button class="pixel-btn btn-ghost" id="cloudModeBtn" onclick="setStorageMode('cloud')" hidden>USE CLOUD MODE</button>
+      <button class="pixel-btn btn-ghost" id="signOutBtn" onclick="signOut()" hidden>SIGN OUT</button>
     </div>
   </div>
 </div>
@@ -268,6 +315,7 @@ function setStorageMode(mode){
   if(mode==="cloud"&&!CLOUD_CONFIGURED)return;
   storageMode=mode==="local"?"local":"cloud";
   try{localStorage.setItem(STORAGE_MODE_KEY,storageMode);}catch(e){}
+  if(document.getElementById("accountOverlay")?.classList.contains("open"))closeAccountLayer(false);
   places=[];render();updateAuthUI();
   if(isCloudMode()){
     if(authReady&&authUser)loadPlaces();
@@ -622,12 +670,26 @@ document.getElementById("grid").addEventListener("click", e=>{
 });
 
 function updateAuthUI(){
-  const authPanel=document.getElementById("authPanel");
-  if(!CLOUD_CONFIGURED){authPanel.hidden=true;document.getElementById("appContent").hidden=false;return;}
+  const entryGate=document.getElementById("entryGate");
+  const appShell=document.getElementById("appShell");
+  const accountBtn=document.getElementById("accountBtn");
   const cloudMode=isCloudMode();
   const signedIn=Boolean(authUser);
-  authPanel.hidden=false;
-  document.getElementById("appContent").hidden=cloudMode&&(!authReady||!signedIn);
+  const canOpenApp=!CLOUD_CONFIGURED||!cloudMode||(authReady&&signedIn);
+  entryGate.hidden=canOpenApp;
+  appShell.hidden=!canOpenApp;
+  document.getElementById("appContent").hidden=!canOpenApp;
+  accountBtn.hidden=!CLOUD_CONFIGURED||!canOpenApp;
+  document.getElementById("entrySignInBtn").hidden=!CLOUD_CONFIGURED||signedIn;
+  document.getElementById("entrySignInBtn").disabled=!authReady||!authClient;
+  document.getElementById("entryLocalBtn").hidden=!CLOUD_CONFIGURED||!cloudMode;
+  document.getElementById("entryStatus").textContent=!authReady
+    ?"CHECKING SIGN-IN..."
+    :cloudMode?(signedIn?"SIGNED IN — OPENING YOUR CLOUD LIST":"GOOGLE SIGN-IN IS REQUIRED FOR CLOUD MODE")
+    :"LOCAL-ONLY MODE SELECTED";
+  document.getElementById("entryMessage").textContent=cloudMode&&!signedIn
+    ?"Sign in to open your private cloud list, or choose local-only mode. Your two lists stay separate."
+    :"Your cloud list and local list stay separate. Switching modes does not copy, merge, or erase either list.";
   document.getElementById("authHeading").textContent=cloudMode?"ACCOUNT":"STORAGE";
   document.getElementById("authStatus").textContent=cloudMode
     ?(!authReady?"CHECKING SESSION...":signedIn?"SIGNED IN AS "+(authUser.email||authUser.id):"CLOUD MODE — GOOGLE SIGN-IN REQUIRED")
@@ -641,15 +703,35 @@ function updateAuthUI(){
   document.getElementById("signOutBtn").hidden=!cloudMode||!signedIn;
 }
 
+let accountReturnFocus=null,accountReleaseTrap=null;
+function openAccountLayer(){
+  if(!CLOUD_CONFIGURED)return;
+  const overlay=document.getElementById("accountOverlay");
+  accountReturnFocus=document.activeElement;
+  overlay.classList.add("open");
+  if(accountReleaseTrap)accountReleaseTrap();
+  accountReleaseTrap=trapFocus(overlay.querySelector(".modal"));
+  setTimeout(()=>overlay.querySelector("button:not([hidden])")?.focus(),0);
+}
+function closeAccountLayer(restoreFocus=true){
+  const overlay=document.getElementById("accountOverlay");
+  if(!overlay.classList.contains("open"))return;
+  overlay.classList.remove("open");
+  if(accountReleaseTrap){accountReleaseTrap();accountReleaseTrap=null;}
+  if(restoreFocus&&accountReturnFocus&&accountReturnFocus.offsetParent!==null)accountReturnFocus.focus();
+}
+
 async function signInWithProvider(){
   if(!authClient)return;
+  setStorageMode("cloud");
   const {error}=await authClient.auth.signInWithOAuth({provider:AUTH_PROVIDER,options:{redirectTo:window.location.origin+window.location.pathname}});
-  if(error){document.getElementById("authMessage").textContent="SIGN-IN FAILED: "+error.message;showToast("SIGN-IN FAILED",true);}
+  if(error){document.getElementById("authMessage").textContent="SIGN-IN FAILED: "+error.message;document.getElementById("entryMessage").textContent="SIGN-IN FAILED: "+error.message;showToast("SIGN-IN FAILED",true);}
 }
 async function signOut(){
   if(!authClient)return;
   const {error}=await authClient.auth.signOut();
   if(error){document.getElementById("authMessage").textContent="SIGN-OUT FAILED: "+error.message;showToast("SIGN-OUT FAILED",true);}
+  else closeAccountLayer();
 }
 function initAuth(){
   if(!CLOUD_CONFIGURED){authReady=true;updateAuthUI();loadPlaces();return;}
@@ -677,8 +759,9 @@ function initAuth(){
 
 
 document.getElementById("overlay").addEventListener("click",e=>{if(e.target===document.getElementById("overlay"))closeModal();});
+document.getElementById("accountOverlay").addEventListener("click",e=>{if(e.target===document.getElementById("accountOverlay"))closeAccountLayer();});
 document.getElementById("lightbox").addEventListener("click",e=>{if(e.target===document.getElementById("lightbox"))closeLightbox();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeLightbox();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeAccountLayer();closeLightbox();}});
 
 // Show storage mode indicator
 window.addEventListener('DOMContentLoaded',()=>{
