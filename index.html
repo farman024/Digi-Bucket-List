@@ -140,6 +140,17 @@ select option{background:var(--bg2);}
 .account-copy h2{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent3);line-height:1.8;}
 .account-copy p{font-size:19px;line-height:1.35;color:var(--text2);}
 .account-actions{padding:14px 20px 22px;display:flex;gap:10px;flex-wrap:wrap;}
+@media(max-width:600px){
+  header{flex-direction:column;align-items:stretch;gap:16px;padding:16px;}
+  .logo-area{min-width:0;}
+  .logo-img{flex-shrink:0;}
+  .logo-text{min-width:0;}
+  .logo-sub{font-size:14px;letter-spacing:1px;}
+  .header-right{width:100%;padding-top:12px;border-top:2px solid var(--border);}
+  #accountBtn{margin-right:auto;min-height:44px;justify-content:center;}
+  .counter-box{margin-left:auto;flex-shrink:0;}
+  .toggle-btn{flex-shrink:0;}
+}
 @media(max-width:500px){.logo-pixel{font-size:8px;}.grid{grid-template-columns:1fr;}.controls{gap:6px;}.entry-gate{padding:16px}.entry-card{padding:26px 20px}.entry-brand{margin-bottom:24px}.entry-choice-copy strong{font-size:7px}.header-right{gap:7px}.counter-num{font-size:16px}.counter-label{font-size:12px}}
 </style>
 </head>
