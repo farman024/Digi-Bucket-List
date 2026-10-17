@@ -1,182 +1,48 @@
-﻿# ðŸŒ Digi Bucket List â€” Pixel Travel PWA
+# Digi Bucket List — Pixel Travel PWA
 
-<p align="center">
-  <img src="Digi%20Bucket%20list%20-%20Logo.png" width="120" height="120" alt="Digi Bucket List logo">
-</p>
+A retro 8-bit styled app for collecting places to visit and things to get, with photos, notes, and status tracking.
 
-> A retro 8-bit styled travel bucket list app. Save your dream destinations, add photos, track what you've visited â€” all in one beautiful pixel-art PWA.
+**Live app:** [farman024.github.io/Digi-Bucket-List](https://farman024.github.io/Digi-Bucket-List/)
 
-**Live Demo:** [farman024.github.io/Digi-Bucket-List](https://farman024.github.io/Digi-Bucket-List)
+## Choose a storage mode
 
----
+**Local mode** stores entries in this browser's local storage. It needs no account, stays on this device, and does not sync with the cloud. Use **USE LOCAL MODE** in the app. Local and cloud lists remain separate; switching modes does not copy or merge data.
 
-## Why Digi Bucket List?
+**Cloud mode** uses Supabase Auth with Google sign-in. Each signed-in account can read and change only rows owned by that account, enforced by Supabase Row Level Security (RLS). Use **USE CLOUD MODE** and sign in with Google to open your private cloud list.
 
-You save travel reels. You screenshot places. Then they get buried.
+Cloud access is optional. Signing out or switching to local mode does not erase either list.
 
-Digi Bucket List solves that â€” a dedicated space to collect every place you want to visit, with photos, notes, and status tracking. Built as a PWA so it lives on your home screen like a real app.
+## Photos
 
-No subscriptions. No accounts. Just deploy it and it's yours forever.
+Local-mode uploads are stored as resized image data in the browser. Cloud-mode uploads use the existing Cloudinary upload preset. The database row is protected by RLS, but Cloudinary image delivery is separate: anyone who obtains a direct image URL may be able to view that image. Do not treat a Cloudinary URL as private storage.
 
----
+## Features
 
-## Two Modes â€” You Choose
+- Places and things lists with dreaming, visited, and acquired statuses
+- Add, edit, delete, filter, and view photos
+- Local browser storage or owner-scoped Supabase cloud storage
+- Google sign-in for cloud mode
+- Dark/light theme and installable PWA support
+- Single-file HTML app with no build step
 
-### ðŸ’¾ Local Mode (Zero Setup)
-Works immediately out of the box. No accounts, no configuration. Data is saved to your browser's localStorage. Photos stored as base64 directly in the browser. Just open and use.
+## For forks or self-hosting
 
-### â˜ Cloud Mode (Optional Upgrade)
-Add your Supabase credentials to sync data across devices. Add Cloudinary credentials for cloud photo storage. The app auto-detects which mode to use â€” no code changes needed.
+The app configuration is in `index.html`. To run without this deployment's cloud backend, leave the Supabase URL and public anon/publishable key at their `YOUR_...` placeholders. To connect your own Supabase project, configure Google in Supabase Auth and apply an owner-scoped `bucket_list` schema and RLS policies before enabling cloud mode. Never put a Supabase service-role key or Google client secret in frontend code.
 
-> âš ï¸ localStorage has a ~5MB limit. If you upload many photos in local mode, you may hit the limit. Cloud mode has no such restriction.
+Optional Cloudinary settings are separate from Supabase list privacy. The existing upload preset is unsigned; configure your own Cloudinary account if you fork the project.
 
----
+## Tech stack
 
-## What You Get
+- Single-file HTML, CSS, and JavaScript
+- Supabase Auth and PostgREST for cloud mode
+- Browser `localStorage` for local mode
+- Cloudinary for optional cloud photo uploads
+- GitHub Pages hosting
 
-- âœ… Complete single-file source code (`index.html`) â€” fully functional, zero dependencies
-- âœ… Works out of the box â€” no setup required (local mode)
-- âœ… Optional Supabase sync â€” cross-device cloud storage
-- âœ… Optional Cloudinary integration â€” cloud photo storage
-- âœ… Supabase database schema â€” copy-paste SQL, ready in 30 seconds
-- âœ… PWA support â€” installable on Android & iOS, works offline
-- âœ… Full CRUD â€” add, edit, delete, toggle status on every entry
-- âœ… Dark & Light mode built in
-- âœ… Lightbox image viewer on card tap
-- âœ… Custom pixel SVG icons â€” no system emojis
-- âœ… Setup guide included
+## PWA installation
 
----
-
-## Features at a Glance
-
-| Feature | Details |
-|---|---|
-| Add Places | Name, country, photo, notes per entry |
-| Photo Upload | Gallery upload or image URL |
-| Photo Storage | Base64 localStorage (local) or Cloudinary (cloud) |
-| Status Toggle | Dreaming â†’ Visited with one tap |
-| Filters | View All / Dreaming / Visited |
-| Lightbox | Tap card to view full photo |
-| Dark/Light Mode | Sun/moon toggle |
-| Data Storage | localStorage (default) or Supabase (optional) |
-| PWA | Install to home screen, offline support |
-| Aesthetic | Pixel/retro 8-bit â€” Press Start 2P + VT323 fonts |
-
----
-
-## Who Is This For?
-
-- **Developers** who want a ready-made PWA template to customize
-- **Indie hackers** looking for a clean Supabase + Cloudinary starter
-- **Travel enthusiasts** who want a personal app without paying for SaaS
-- **Anyone** who wants a working app with zero setup and optional upgrades
-
----
-
-## Tech Stack
-
-| Layer | Tool |
-|---|---|
-| Frontend | Single-file HTML / CSS / JS |
-| Database | localStorage (default) or Supabase (optional) |
-| Image Storage | Base64 localStorage (default) or Cloudinary (optional) |
-| Fonts | Press Start 2P + VT323 |
-| Hosting | GitHub Pages (free) |
-| PWA | Inline blob manifest + service worker |
-
-No React. No build tools. No npm. Open the file, optionally add credentials, push to GitHub â€” done.
-
----
-
-## Setup
-
-### Option A â€” Local Mode (No Setup)
-Just open `index.html` in a browser or deploy to GitHub Pages. It works immediately. Done.
-
----
-
-### Option B â€” Cloud Mode (Optional)
-
-**Step 1 â€” Supabase**
-
-Create a free project at [supabase.com](https://supabase.com), then run this in the SQL editor:
-
-```sql
-CREATE TABLE bucket_list (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  name text NOT NULL,
-  country text,
-  photo_url text,
-  notes text,
-  status text DEFAULT 'dreaming',
-  created_at timestamp DEFAULT now()
-);
-
-ALTER TABLE bucket_list DISABLE ROW LEVEL SECURITY;
-```
-
-**Step 2 â€” Cloudinary (optional)**
-
-Create a free account at [cloudinary.com](https://cloudinary.com). Go to Settings â†’ Upload â†’ Add an unsigned upload preset. Note your cloud name and preset name.
-
-**Step 3 â€” Add Your Credentials**
-
-Open `index.html` and find the config block near the top of the `<script>` tag:
-
-```js
-// OPTION A â€” Supabase (cross-device sync):
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
-
-// OPTION B â€” Cloudinary (cloud photo storage):
-const CLOUDINARY_CLOUD = "YOUR_CLOUDINARY_CLOUD_NAME";
-const CLOUDINARY_PRESET = "YOUR_CLOUDINARY_UPLOAD_PRESET";
-```
-
-Replace the placeholder values with your own. Leave any you don't want as `"YOUR_..."` and that feature stays in local mode.
-
-**Step 4 â€” Deploy**
-
-Push `index.html` to a GitHub repo â†’ enable GitHub Pages â†’ visit your URL.
-
-**Total setup time: under 10 minutes.**
-
----
-
-## PWA Installation
-
-**Android** â€” Open in Chrome or Brave â†’ tap three-dot menu â†’ *Add to Home Screen*
-
-**iOS** â€” Open in Safari â†’ tap Share â†’ *Add to Home Screen*
-
----
-
-## File Structure
-
-```
-your-repo/
-â”œâ”€â”€ index.html    â† entire app (styles + logic + PWA)
-â””â”€â”€ README.md
-```
-
-One file. That's it.
-
----
+On Android, open the app in Chrome and choose **Add to Home Screen**. On iOS, open it in Safari, tap **Share**, then choose **Add to Home Screen**.
 
 ## License
 
-Personal use and client projects â€” âœ… allowed
-Reselling this source code as-is â€” âŒ not allowed
-Customizing and selling as your own product â€” âœ… allowed
-
----
-
-## Support
-
-Having trouble setting up? Reach out via Gumroad messaging and I'll help you get it running.
-
----
-
-Built by **Farman J Â· AI Generalist**
-
+Personal use and client projects are allowed. Reselling the source code as-is is not allowed. Customized versions may be sold as your own work.

@@ -118,6 +118,7 @@ select option{background:var(--bg2);}
 .lightbox-country{font-family:'VT323',monospace;font-size:22px;color:var(--accent2);text-align:center;}
 .lightbox-close{position:absolute;top:20px;right:20px;background:none;border:2px solid var(--accent);color:var(--accent);width:40px;height:40px;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 var(--accent);}
 ::-webkit-scrollbar{width:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);}::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+.auth-panel{margin:0 0 20px;padding:16px 20px;background:var(--panel);border:2px solid var(--accent3);box-shadow:4px 4px 0 var(--accent3);display:flex;align-items:center;gap:12px;flex-wrap:wrap}.auth-panel h2{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent3)}.auth-panel p{font-size:17px;color:var(--text2);line-height:1.3}.auth-copy{flex:1;min-width:220px}.auth-panel[hidden],#appContent[hidden],[hidden]{display:none!important;}
 @media(max-width:500px){.logo-pixel{font-size:8px;}.grid{grid-template-columns:1fr;}.controls{gap:6px;}}
 </style>
 </head>
@@ -142,6 +143,14 @@ select option{background:var(--bg2);}
       </button>
     </div>
   </header>
+  <section id="authPanel" class="auth-panel" hidden aria-live="polite">
+    <div class="auth-copy"><h2 id="authHeading">ACCOUNT</h2><p id="authStatus">Checking sign-in...</p><p id="authMessage"></p></div>
+    <button class="pixel-btn btn-primary" id="signInBtn" onclick="signInWithProvider()" hidden>SIGN IN WITH GOOGLE</button>
+    <button class="pixel-btn btn-ghost" id="localModeBtn" onclick="setStorageMode('local')" hidden>USE LOCAL MODE</button>
+    <button class="pixel-btn btn-ghost" id="cloudModeBtn" onclick="setStorageMode('cloud')" hidden>USE CLOUD MODE</button>
+    <button class="pixel-btn btn-ghost" id="signOutBtn" onclick="signOut()" hidden>SIGN OUT</button>
+  </section>
+  <div id="appContent" hidden>
   <div class="type-tabs" style="margin-bottom:12px;">
     <button class="type-tab active" onclick="setType('place',this)"><svg width="10" height="13" viewBox="0 0 10 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="2" y="0" width="6" height="2" fill="currentColor"/><rect x="0" y="2" width="10" height="6" fill="currentColor"/><rect x="2" y="8" width="6" height="2" fill="currentColor"/><rect x="3" y="10" width="4" height="2" fill="currentColor"/><rect x="4" y="12" width="2" height="1" fill="currentColor"/></svg>PLACES</button>
     <button class="type-tab" onclick="setType('thing',this)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:6px;image-rendering:pixelated"><rect x="0" y="2" width="12" height="2" fill="currentColor"/><rect x="0" y="6" width="8" height="2" fill="currentColor"/><rect x="0" y="10" width="10" height="2" fill="currentColor"/><rect x="2" y="0" width="2" height="2" fill="currentColor"/></svg>THINGS</button>
@@ -154,6 +163,7 @@ select option{background:var(--bg2);}
     <button class="pixel-btn btn-primary" id="addBtn" onclick="openModal()"><span>+</span> ADD PLACE</button>
   </div>
   <div class="grid" id="grid"><div class="loading" id="loadingEl">LOADING</div></div>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -207,11 +217,12 @@ select option{background:var(--bg2);}
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
 // ✏️  CONFIGURE YOUR CREDENTIALS (OPTIONAL)
 // ============================================================
-// OPTION A — Supabase (cross-device sync):
+// OPTION A — Supabase (authenticated cross-device sync):
 //   Get your URL + anon key from supabase.com → Project Settings → API
 const SUPABASE_URL = "https://rlatlwyksxakqgwmarvf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsYXRsd3lrc3hha3Fnd21hcnZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMDQyNDcsImV4cCI6MjA5MDU4MDI0N30.CbjYYe1Y9TIt6WEiAVfIBjxgf49fv5a8DpFu9L7Hz8o";
@@ -222,7 +233,7 @@ const CLOUDINARY_CLOUD = "dokpigfii";
 const CLOUDINARY_PRESET = "MediaVault";
 
 // Leave as "YOUR_..." to use LOCAL STORAGE mode (no setup needed).
-// Fill in Supabase credentials to enable cloud sync across devices.
+// Cloud mode requires Supabase Auth and a signed-in user; provider setup is a separate prerequisite.
 // Fill in Cloudinary credentials to enable cloud photo storage.
 // ============================================================
 
@@ -230,17 +241,38 @@ const TABLE = "bucket_list";
 const LS_KEY = "digi_bucket_list";
 
 // Detect modes
-const USE_SUPABASE = SUPABASE_URL !== "YOUR_SUPABASE_PROJECT_URL" && SUPABASE_KEY !== "YOUR_SUPABASE_ANON_KEY"
+const CLOUD_CONFIGURED = SUPABASE_URL !== "YOUR_SUPABASE_PROJECT_URL" && SUPABASE_KEY !== "YOUR_SUPABASE_ANON_KEY";
 const USE_CLOUDINARY = CLOUDINARY_CLOUD !== "YOUR_CLOUDINARY_CLOUD_NAME" && CLOUDINARY_PRESET !== "YOUR_CLOUDINARY_UPLOAD_PRESET"
+// Google OAuth is the selected sign-in provider for the multi-user pilot.
+// Configure Google in Supabase Auth before enabling cloud sign-in.
+const AUTH_PROVIDER = "google";
 
 // PWA — brand logo from Brand Logos/Digi Bucket list - Logo.png
 const manifest = {name:"Digi Bucket List",short_name:"DigiBucket",description:"Your pixel travel bucket list",start_url:".",display:"standalone",background_color:"#0a0a0f",theme_color:"#e94560",orientation:"portrait",icons:[{src:"icon-192.png",sizes:"192x192",type:"image/png"},{src:"icon-512.png",sizes:"512x512",type:"image/png"},{src:"logo.png",sizes:"1024x1024",type:"image/png",purpose:"any maskable"}]};
 const mBlob = new Blob([JSON.stringify(manifest)],{type:"application/json"});
 document.getElementById("manifest-ph").href = URL.createObjectURL(mBlob);
-const swCode = `const CACHE="digi-v1";self.addEventListener("install",e=>{self.skipWaiting();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));if(e.request.method==="GET"){e.waitUntil(caches.open(CACHE).then(c=>c.add(e.request.url)).catch(()=>{}))}});`;
+const swCode = `const CACHE="digi-v2";self.addEventListener("install",e=>{self.skipWaiting();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));if(e.request.method==="GET"){e.waitUntil(caches.open(CACHE).then(c=>c.add(e.request.url)).catch(()=>{}))}});`;
 if("serviceWorker" in navigator){const b=new Blob([swCode],{type:"application/javascript"});navigator.serviceWorker.register(URL.createObjectURL(b)).catch(()=>{});}
 
 let places=[],filter="all",activeType="place",editId=null,uploadedPhotoUrl="",activePhotoTab="upload",isDark=true,pendingFile=null;
+let authClient=null,authUser=null,authReady=false;
+const STORAGE_MODE_KEY="digi_storage_mode";
+function initialStorageMode(){
+  if(!CLOUD_CONFIGURED)return "local";
+  try{return localStorage.getItem(STORAGE_MODE_KEY)==="local"?"local":"cloud";}
+  catch(e){return "cloud";}
+}
+let storageMode=initialStorageMode();
+function isCloudMode(){return CLOUD_CONFIGURED&&storageMode==="cloud";}
+function setStorageMode(mode){
+  if(mode==="cloud"&&!CLOUD_CONFIGURED)return;
+  storageMode=mode==="local"?"local":"cloud";
+  try{localStorage.setItem(STORAGE_MODE_KEY,storageMode);}catch(e){}
+  places=[];render();updateAuthUI();
+  if(isCloudMode()){
+    if(authReady&&authUser)loadPlaces();
+  }else loadPlaces();
+}
 
 function applyTheme(dark){
   isDark=dark;
@@ -292,7 +324,12 @@ function lsGenId(){return "ls_"+Date.now()+"_"+Math.random().toString(36).slice(
 
 // Supabase helper
 async function sbFetch(path,opts={}){
-  const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json","Prefer":opts.prefer||"return=representation"},method:opts.method||"GET",body:opts.body});
+  if(!authClient||!authUser)throw new Error("SIGN IN REQUIRED");
+  const {data,error}=await authClient.auth.getSession();
+  if(error)throw error;
+  const accessToken=data.session?.access_token;
+  if(!accessToken)throw new Error("SESSION EXPIRED — SIGN IN AGAIN");
+  const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+accessToken,"Content-Type":"application/json","Prefer":opts.prefer||"return=representation"},method:opts.method||"GET",body:opts.body});
   if(!r.ok){const e=await r.text();throw new Error(e);}
   const t=await r.text();return t?JSON.parse(t):null;
 }
@@ -345,15 +382,19 @@ async function uploadPhoto(file){
 
 // ── CRUD OPERATIONS ──────────────────────────────────────────
 async function loadPlaces(){
+  if(isCloudMode()&&(!authReady||!authUser)){places=[];render();return;}
+  const requestedUserId=isCloudMode()?authUser.id:null;
   try{
-    if(USE_SUPABASE){
-      const d=await sbFetch(TABLE+`?type=eq.${activeType}&order=created_at.desc`,{prefer:""});
+    if(isCloudMode()){
+      const d=await sbFetch(TABLE+`?user_id=eq.${encodeURIComponent(requestedUserId)}&type=eq.${activeType}&order=created_at.desc`,{prefer:""});
+      if(!isCloudMode()||authUser?.id!==requestedUserId)return;
       places=d||[];
     } else {
       const all=lsLoad().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));places=all.filter(p=>(p.type||"place")===activeType);
     }
     render();
   } catch(e){
+    if(!isCloudMode()||authUser?.id!==requestedUserId)return;
     console.error(e);
     showToast("FAILED TO LOAD: "+e.message,true);
     document.getElementById("loadingEl").textContent="ERROR";
@@ -361,6 +402,7 @@ async function loadPlaces(){
 }
 
 async function savePlace(){
+  if(isCloudMode()&&!authUser){showToast("SIGN IN REQUIRED",true);return;}
   const name=document.getElementById("fName").value.trim();
   const country=document.getElementById("fCountry").value.trim();
   const status=document.getElementById("fStatus").value;
@@ -375,10 +417,11 @@ async function savePlace(){
   }
 
   const payload={name,country,status,notes,photo_url:photo||null,type:activeType};
+  if(isCloudMode())payload.user_id=authUser.id;
 
   try{
-    if(USE_SUPABASE){
-      if(editId){await sbFetch(TABLE+"?id=eq."+editId,{method:"PATCH",body:JSON.stringify(payload)});showToast("UPDATED!");}
+    if(isCloudMode()){
+      if(editId){await sbFetch(TABLE+"?id=eq."+encodeURIComponent(editId)+"&user_id=eq."+encodeURIComponent(authUser.id),{method:"PATCH",body:JSON.stringify(payload)});showToast("UPDATED!");}
       else{await sbFetch(TABLE,{method:"POST",body:JSON.stringify(payload)});showToast(activeType==="place"?"PLACE ADDED!":"THING ADDED!");}
     } else {
       const all=lsLoad();
@@ -401,7 +444,7 @@ async function deletePlace(id,e){
   e.stopPropagation();
   if(!confirm(activeType==="place"?"DELETE THIS PLACE?":"DELETE THIS THING?"))return;
   try{
-    if(USE_SUPABASE){await sbFetch(TABLE+"?id=eq."+id,{method:"DELETE",prefer:""});}
+    if(isCloudMode()){await sbFetch(TABLE+"?id=eq."+encodeURIComponent(id)+"&user_id=eq."+encodeURIComponent(authUser.id),{method:"DELETE",prefer:""});}
     else{lsSave(lsLoad().filter(p=>p.id!==id));}
     showToast("DELETED!");loadPlaces();
   } catch(e){showToast("DELETE FAILED",true);}
@@ -411,7 +454,7 @@ async function toggleStatus(id,cur,e){
   e.stopPropagation();
   const doneVal=activeType==="thing"?"acquired":"visited";const curNorm=cur==="done"?doneVal:cur;const s=curNorm==="dreaming"?doneVal:"dreaming";
   try{
-    if(USE_SUPABASE){await sbFetch(TABLE+"?id=eq."+id,{method:"PATCH",body:JSON.stringify({status:s})});}
+    if(isCloudMode()){await sbFetch(TABLE+"?id=eq."+encodeURIComponent(id)+"&user_id=eq."+encodeURIComponent(authUser.id),{method:"PATCH",body:JSON.stringify({status:s})});}
     else{const all=lsLoad();const idx=all.findIndex(p=>p.id===id);if(idx>-1)all[idx].status=s;lsSave(all);}
     loadPlaces();
   } catch(e){showToast("UPDATE FAILED",true);}
@@ -578,17 +621,72 @@ document.getElementById("grid").addEventListener("click", e=>{
   }
 });
 
+function updateAuthUI(){
+  const authPanel=document.getElementById("authPanel");
+  if(!CLOUD_CONFIGURED){authPanel.hidden=true;document.getElementById("appContent").hidden=false;return;}
+  const cloudMode=isCloudMode();
+  const signedIn=Boolean(authUser);
+  authPanel.hidden=false;
+  document.getElementById("appContent").hidden=cloudMode&&(!authReady||!signedIn);
+  document.getElementById("authHeading").textContent=cloudMode?"ACCOUNT":"STORAGE";
+  document.getElementById("authStatus").textContent=cloudMode
+    ?(!authReady?"CHECKING SESSION...":signedIn?"SIGNED IN AS "+(authUser.email||authUser.id):"CLOUD MODE — GOOGLE SIGN-IN REQUIRED")
+    :"LOCAL MODE — THIS DEVICE ONLY";
+  document.getElementById("authMessage").textContent=cloudMode
+    ?(signedIn?"Your cloud list is private to this signed-in account.":"Sign in with Google to access your private cloud list. Local data remains separate.")
+    :"Local data stays in this browser and does not sync. Your cloud list remains separate.";
+  document.getElementById("signInBtn").hidden=!cloudMode||!authReady||signedIn;
+  document.getElementById("localModeBtn").hidden=!cloudMode;
+  document.getElementById("cloudModeBtn").hidden=cloudMode;
+  document.getElementById("signOutBtn").hidden=!cloudMode||!signedIn;
+}
+
+async function signInWithProvider(){
+  if(!authClient)return;
+  const {error}=await authClient.auth.signInWithOAuth({provider:AUTH_PROVIDER,options:{redirectTo:window.location.origin+window.location.pathname}});
+  if(error){document.getElementById("authMessage").textContent="SIGN-IN FAILED: "+error.message;showToast("SIGN-IN FAILED",true);}
+}
+async function signOut(){
+  if(!authClient)return;
+  const {error}=await authClient.auth.signOut();
+  if(error){document.getElementById("authMessage").textContent="SIGN-OUT FAILED: "+error.message;showToast("SIGN-OUT FAILED",true);}
+}
+function initAuth(){
+  if(!CLOUD_CONFIGURED){authReady=true;updateAuthUI();loadPlaces();return;}
+  if(!window.supabase||typeof window.supabase.createClient!=="function"){authReady=true;updateAuthUI();showToast("AUTH LIBRARY UNAVAILABLE",true);return;}
+  authClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  authClient.auth.onAuthStateChange((event,session)=>{
+    const nextUser=session?.user||null;
+    if(authUser?.id!==nextUser?.id){places=[];render();}
+    authUser=nextUser;authReady=true;updateAuthUI();
+    if(isCloudMode()){
+      if(authUser)setTimeout(()=>loadPlaces(),0);
+      else{places=[];render();}
+    }else loadPlaces();
+  });
+  authClient.auth.getSession().then(({data,error})=>{
+    if(error)throw error;
+    const nextUser=data.session?.user||null;
+    if(authUser?.id!==nextUser?.id){places=[];render();}
+    authUser=nextUser;authReady=true;updateAuthUI();
+    if(isCloudMode()){
+      if(authUser)loadPlaces();else{places=[];render();}
+    }else loadPlaces();
+  }).catch(error=>{authUser=null;authReady=true;updateAuthUI();if(isCloudMode())places=[];loadPlaces();showToast("AUTH INIT FAILED: "+error.message,true);});
+}
+
+
 document.getElementById("overlay").addEventListener("click",e=>{if(e.target===document.getElementById("overlay"))closeModal();});
 document.getElementById("lightbox").addEventListener("click",e=>{if(e.target===document.getElementById("lightbox"))closeLightbox();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeLightbox();}});
 
 // Show storage mode indicator
 window.addEventListener('DOMContentLoaded',()=>{
-  const mode = USE_SUPABASE ? "☁ CLOUD MODE" : "💾 LOCAL MODE";
+  const mode = isCloudMode() ? "☁ CLOUD MODE" : "💾 LOCAL MODE";
   console.log("Digi Bucket List — "+mode);
 });
 
-loadPlaces();
+initAuth();
 </script>
 </body>
 </html>
