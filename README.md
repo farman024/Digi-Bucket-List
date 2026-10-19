@@ -42,7 +42,3 @@ Optional Cloudinary settings are separate from Supabase list privacy. The existi
 ## PWA installation
 
 On Android, open the app in Chrome and choose **Add to Home Screen**. On iOS, open it in Safari, tap **Share**, then choose **Add to Home Screen**.
-
-## License
-
-Personal use and client projects are allowed. Reselling the source code as-is is not allowed. Customized versions may be sold as your own work.
